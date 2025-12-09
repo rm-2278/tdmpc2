@@ -18,6 +18,15 @@ Followed environment.yaml
 Degraded wheel, setuptools and gym.
 
 
+Errors:
+The error AttributeError: 'TensorDict' object has no attribute '_tensordict' is caused by a version mismatch between your newly installed PyTorch (v2.8.0) and the tensordict library.
+Fix (bypass):
+Add compile=false to command
+
+
+Running Tests:
+python train.py task=walker-walk compile=false
+
 Successful Tests:
 python train.py task=dog-run steps=70
 
