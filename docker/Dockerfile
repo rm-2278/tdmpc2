@@ -16,7 +16,7 @@
 ##########################################
 
 # base image
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+FROM pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime
 ENV DEBIAN_FRONTEND=noninteractive
 
 # packages
@@ -36,6 +36,8 @@ COPY nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
 COPY environment.yaml /root
 RUN conda update conda && \
     conda env update -n base -f /root/environment.yaml && \
+    # Explicitly upgrade torch to ensure compatibility with newer GPUs (e.g. RTX 50-series)
+    pip install -U torch torchvision torchaudio && \
     rm /root/environment.yaml && \
     conda clean -ya && \
     pip cache purge && \
