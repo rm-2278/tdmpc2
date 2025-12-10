@@ -35,15 +35,20 @@ RUN apt-get -y update && \
 COPY nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
 COPY environment.yaml /root
 RUN conda update conda && \
-    conda env update -n base -f /root/environment.yaml && \
-    # Explicitly upgrade torch to ensure compatibility with newer GPUs (e.g. RTX 50-series)
-    pip install -U torch torchvision torchaudio && \
+    # Create a NEW environment named 'tdmpc2' with Python 3.9
+    conda env create -f /root/environment.yaml && \
+    conda init && \
+    # Make this environment the default one when opening a shell
+    echo "conda activate tdmpc2" >> /root/.bashrc && \
+    # Clean up
     rm /root/environment.yaml && \
     conda clean -ya && \
-    pip cache purge && \
-    conda init
-SHELL ["/bin/bash", "-c"]
-RUN echo "cd /root" >> /root/.bashrc
+    pip cache purge
+# Set the shell to run commands in this new environment for the rest of the build
+SHELL ["/bin/bash", "--login", "-c"]
+
+# Now install the torch upgrade INSIDE the new environment
+RUN conda run -n tdmpc2 pip install -U torch torchvision torchaudio
 # image does not include metaworld, maniskill, myosuite
 # these can be installed separately; see environment.yaml for details
 
